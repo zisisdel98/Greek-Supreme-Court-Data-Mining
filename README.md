@@ -8,6 +8,8 @@ This work was developed as part of an academic assignment, aiming to extract mea
 
 ---
 
+# Part 1
+
 # Objectives
 **Data Collection of Areios Pagos Decisions**
 

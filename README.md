@@ -91,3 +91,108 @@ This work was developed as part of an academic assignment, aiming to extract mea
 - Demonstrated **data engineering, scraping, and analytical visualization** skills.  
 - Compared and improved upon an existing open dataset (GreekLegalSum).  
 
+---
+
+# Β1
+
+# Legal Document Classification using Supervised Machine Learning
+
+This project implements and compares multiple **text classification models** for predicting the category of **Greek legal documents**.  
+It was developed as part of the *Data Mining* course at the University of Athens and demonstrates practical expertise in **Natural Language Processing (NLP)**, **feature engineering**, and **model evaluation**.
+
+---
+
+## Overview
+
+The goal is to automatically classify legal texts from the [Greek Legal Code dataset](https://huggingface.co/datasets/AI-team-UoA/greek_legal_code), which contains **47k legal documents** categorized by:
+- **Collection (Volume)**
+- **Chapter**
+- **Subject**
+
+Each document is associated with one label from each of the above hierarchies.  
+The challenge includes **high class imbalance**, **few-shot/zero-shot categories**, and a **large OOV ratio** in the test sets.
+
+---
+
+## Dataset
+
+The dataset comes from the *Raphtarchis* collection and is split into:
+- `train`, `validation`, and `test` subsets  
+- Three classification levels:
+  - `volume`
+  - `chapter`
+  - `subject`
+
+Examples are stored in Parquet format and loaded directly from Hugging Face.
+
+---
+
+## Models & Approach
+
+Three main classification approaches were implemented and compared:
+
+### ** 1. SVM with BoW and TF-IDF**
+- Model: `LinearSVC`
+- Representations: Bag-of-Words and TF-IDF
+- Tuned hyperparameters: `C`, `ngram_range`, `min_df`, `max_df`
+- Evaluation across all three datasets (volume, chapter, subject)
+- **TF-IDF consistently outperformed BoW**, due to term-frequency weighting
+
+### ** 2.  Logistic Regression with Dense Embeddings**
+- Word embeddings generated from:
+  - `Word2Vec` (trained from scratch on legal data)
+  - `fastText` (pretrained `cc.el.300.bin`, with and without fine-tuning)
+- Tokenization via `spaCy` (`el_core_news_sm`)
+- Optional **TF-IDF weighting** applied to embedding vectors
+- **Oversampling** applied to underrepresented classes
+- Fine-tuned fastText and trained Word2Vec models produced the best results on `subject` data
+
+### ** 3. Multi-Layer Perceptron (MLP)**
+- Implemented both with:
+  - `scikit-learn` (TF-IDF representation)
+  - `PyTorch` (GPU-accelerated for large, multi-label datasets)
+- Compared performance using both TF-IDF and word embeddings
+- **TF-IDF-based MLPs outperformed embedding-based ones**
+- Used GPU runtime (Google Colab Pro) for efficient training on large data
+
+---
+
+## Implementation Details
+
+| Component | Library / Tool |
+|------------|----------------|
+| Data Loading | `pandas`, `pyarrow` |
+| Text Preprocessing | `re`, `spaCy`, Greek stopwords filtering |
+| Feature Extraction | `TfidfVectorizer`, custom Word2Vec / fastText embeddings |
+| Models | `scikit-learn` (SVM, Logistic Regression, MLP), `PyTorch` (MLP) |
+| Sampling | Custom oversampling for few-shot classes |
+| Evaluation | Accuracy, Precision, Recall, F1-score |
+| Environment | Google Colab Pro (GPU enabled) |
+
+---
+
+## Results Summary
+
+| Model | Representation | Dataset | Accuracy | Precision | Recall | F1-score |
+|--------|----------------|----------|-----------|------------|----------|-----------|
+| SVM | TF-IDF | Volume | ↑ Best among baselines |  |  |  |
+| Logistic Regression | Word2Vec (trained) | Subject | ↑ Best overall |  |  |  |
+| MLP (TF-IDF) | TF-IDF | Chapter | ↑ Best deep model |  |  |  |
+
+> *Exact scores can be found in `B1.ipynb` under the results section.*
+
+---
+
+## Κey Insights
+
+- **TF-IDF** remains highly effective for legal text classification.
+- **Word2Vec trained on domain data** outperformed pretrained embeddings for specialized vocabulary.
+- **High OOV ratios** (≈70%) significantly impacted model generalization for `chapter` and `subject` levels.
+- **Oversampling** offered minor improvements due to severe class imbalance.
+- **GPU-accelerated PyTorch MLP** allowed efficient handling of large, multi-label data.
+
+---
+
+
+
+
